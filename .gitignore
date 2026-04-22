@@ -20,8 +20,8 @@ ENV/
 .ipynb_checkpoints/
 *.ipynb_checkpoints
 
-# Data - large files
-inventory-listing-2022-08-17.txt
+# Data - inventory listing files
+inventory-listing-*.txt
 
 # OS
 .DS_Store
