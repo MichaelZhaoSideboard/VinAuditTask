@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, Query
 import asyncpg
 
+from app.config import settings
 from app.database import get_db
 
 router = APIRouter(prefix="/api/vehicles", tags=["vehicles"])
