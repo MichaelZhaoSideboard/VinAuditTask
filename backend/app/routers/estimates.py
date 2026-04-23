@@ -1,13 +1,23 @@
+import random
 from fastapi import APIRouter, Depends, HTTPException, Query
 import asyncpg
 
 from app.database import get_db
 from app.estimation import calculate_estimate
-from app.schemas import PriceEstimate
+from app.schemas import PriceEstimate, SampleListing
 
 router = APIRouter(prefix="/api/estimates", tags=["estimates"])
 
 _MIN_SAMPLES = 5
+_MAX_SAMPLE_LISTINGS = 100
+_MILEAGE_MAX = 300_000
+
+
+def _clean_mileage(m) -> float | None:
+    """Treat 0 and implausibly high mileage as None so they're excluded from regression."""
+    if m is None or m == 0 or m > _MILEAGE_MAX:
+        return None
+    return float(m)
 
 
 @router.get("", response_model=PriceEstimate)
@@ -20,11 +30,11 @@ async def get_estimate(
 ) -> PriceEstimate:
     rows = await db.fetch(
         """
-        SELECT listing_price, listing_mileage
+        SELECT listing_price, listing_mileage, dealer_city, dealer_state
         FROM listings
         WHERE year = $1
           AND make = $2
-          AND model = $3
+          AND model_normalized = $3
           AND listing_price IS NOT NULL
         """,
         year,
@@ -39,9 +49,23 @@ async def get_estimate(
         )
 
     prices = [float(r["listing_price"]) for r in rows]
-    mileages = [float(r["listing_mileage"]) if r["listing_mileage"] is not None else None for r in rows]
+    mileages = [_clean_mileage(r["listing_mileage"]) for r in rows]
 
     estimated, low, high, adjusted = calculate_estimate(prices, mileages, mileage)
+
+    sample_rows = random.sample(rows, min(_MAX_SAMPLE_LISTINGS, len(rows)))
+    sample_listings = [
+        SampleListing(
+            year=year,
+            make=make,
+            model=model,
+            price=round(float(r["listing_price"])),
+            mileage=r["listing_mileage"],
+            city=r["dealer_city"],
+            state=r["dealer_state"],
+        )
+        for r in sample_rows
+    ]
 
     return PriceEstimate(
         estimated_price=estimated,
@@ -49,4 +73,5 @@ async def get_estimate(
         price_high=high,
         sample_count=len(rows),
         mileage_adjusted=adjusted,
+        sample_listings=sample_listings,
     )

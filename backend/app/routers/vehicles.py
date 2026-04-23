@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Depends, Query
 import asyncpg
 
-from app.config import settings
 from app.database import get_db
 
 router = APIRouter(prefix="/api/vehicles", tags=["vehicles"])
@@ -51,18 +50,16 @@ async def list_models(
 ) -> list[str]:
     rows = await db.fetch(
         """
-        SELECT model
+        SELECT model_normalized
         FROM listings
         WHERE year = $1
           AND make = $2
-          AND model IS NOT NULL
+          AND model_normalized IS NOT NULL
           AND listing_price IS NOT NULL
-        GROUP BY model
-        HAVING COUNT(*) >= $3
-        ORDER BY model
+        GROUP BY model_normalized
+        ORDER BY model_normalized
         """,
         year,
         make,
-        settings.min_make_listings,
     )
-    return [r["model"] for r in rows]
+    return [r["model_normalized"] for r in rows]
