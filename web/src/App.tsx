@@ -71,6 +71,11 @@ export default function App() {
     setEstimate(null);
     try {
       const miles = mileage ? Number(mileage) : undefined;
+      if (miles !== undefined && miles > 500_000) {
+        setError("Mileage must be 500,000 or less.");
+        setSubmitting(false);
+        return;
+      }
       const result = await fetchEstimate(year, make, model, miles);
       setEstimate(result);
       setLastSearch({ year, make, model });

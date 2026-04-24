@@ -4,7 +4,14 @@ async function get<T>(path: string): Promise<T> {
   const res = await fetch(path);
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
-    throw new Error(body.detail ?? `Request failed (${res.status})`);
+    const detail = body.detail;
+    const message =
+      typeof detail === "string"
+        ? detail
+        : Array.isArray(detail) && detail.length > 0
+          ? detail[0].msg ?? `Request failed (${res.status})`
+          : `Request failed (${res.status})`;
+    throw new Error(message);
   }
   return res.json();
 }
