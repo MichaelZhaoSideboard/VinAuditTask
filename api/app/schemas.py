@@ -7,6 +7,7 @@ class SampleListing(BaseModel):
     model: str
     price: int
     mileage: int | None
+    used: bool | None
     city: str | None
     state: str | None
 

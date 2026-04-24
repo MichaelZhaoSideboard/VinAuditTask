@@ -30,10 +30,10 @@ async def get_estimate(
 ) -> PriceEstimate:
     rows = await db.fetch(
         """
-        SELECT listing_price, listing_mileage, dealer_city, dealer_state
+        SELECT listing_price, listing_mileage, used, dealer_city, dealer_state
         FROM listings
         WHERE year = $1
-          AND make = $2
+          AND make_normalized = $2
           AND model_normalized = $3
           AND listing_price IS NOT NULL
         """,
@@ -61,6 +61,7 @@ async def get_estimate(
             model=model,
             price=round(float(r["listing_price"])),
             mileage=r["listing_mileage"],
+            used=r["used"],
             city=r["dealer_city"],
             state=r["dealer_state"],
         )

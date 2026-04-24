@@ -4,6 +4,7 @@ export interface SampleListing {
   model: string;
   price: number;
   mileage: number | null;
+  used: boolean | null;
   city: string | null;
   state: string | null;
 }

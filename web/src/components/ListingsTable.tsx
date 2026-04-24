@@ -4,12 +4,13 @@ function fmtPrice(n: number) {
   return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n);
 }
 
-function fmtMileage(n: number | null) {
-  if (n === null) return "—";
-  return n.toLocaleString("en-US") + " mi";
+function fmtMileage(n: number | null, used: boolean | null) {
+  if (n !== null) return n.toLocaleString("en-US") + " mi";
+  return used === false ? "New" : "N/A";
 }
 
 function fmtLocation(city: string | null, state: string | null) {
+  if (city === "*" || state === "*") return "Online Only";
   if (city && state) return `${city}, ${state}`;
   return city ?? state ?? "—";
 }
@@ -45,7 +46,7 @@ export function ListingsTable({ listings, totalCount }: Props) {
                 <td>{l.year}</td>
                 <td>{l.make} {l.model}</td>
                 <td>{fmtPrice(l.price)}</td>
-                <td>{fmtMileage(l.mileage)}</td>
+                <td>{fmtMileage(l.mileage, l.used)}</td>
                 <td>{fmtLocation(l.city, l.state)}</td>
               </tr>
             ))}

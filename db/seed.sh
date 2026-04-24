@@ -57,13 +57,15 @@ fi
 
 # --- Schema migrations ---
 
-echo "[1/5] Applying schema migrations..."
+echo "[1/6] Applying schema migrations..."
 psql "$DB_URL" -f "$SCRIPT_DIR/001_initial_schema.sql"
 psql "$DB_URL" -f "$SCRIPT_DIR/002_add_model_normalized.sql"
+psql "$DB_URL" -f "$SCRIPT_DIR/003_add_make_normalized.sql"
+psql "$DB_URL" -f "$SCRIPT_DIR/004_add_nhtsa_tables.sql"
 
 # --- Load into staging table (all TEXT to avoid type errors from dirty data) ---
 
-echo "[2/5] Creating staging table..."
+echo "[2/6] Creating staging table..."
 $PSQL <<'SQL'
 DROP TABLE IF EXISTS listings_raw;
 CREATE TEMP TABLE listings_raw (
@@ -97,7 +99,7 @@ SQL
 
 # Use E'\x01' (SOH, ASCII 1) as quote char — it never appears in the data,
 # which disables CSV quoting logic and avoids misparses from bare \" in values.
-echo "[3/5] Copying raw data (this may take a few minutes for large files)..."
+echo "[3/6] Copying raw data (this may take a few minutes for large files)..."
 $PSQL -c "\copy listings_raw FROM '$DATA_FILE' WITH (FORMAT csv, DELIMITER '|', HEADER true, NULL '', QUOTE E'\x01');"
 
 ROW_COUNT=$($PSQL -t -c "SELECT COUNT(*) FROM listings_raw;" | tr -d ' ')
@@ -105,7 +107,7 @@ echo "      Loaded $ROW_COUNT raw rows."
 
 # --- Insert into typed listings table ---
 
-echo "[4/5] Inserting into listings with type coercion..."
+echo "[4/6] Inserting into listings with type coercion..."
 $PSQL <<'SQL'
 INSERT INTO listings
 SELECT
@@ -144,8 +146,12 @@ FILTERED=$(( ROW_COUNT - INSERTED ))
 echo "      $INSERTED rows inserted, $FILTERED filtered out (online-only or non-US)."
 
 echo ""
-echo "[5/5] Normalizing model names (NHTSA + fuzzy match)..."
+echo "[5/6] Normalizing model names..."
 python3 "$SCRIPT_DIR/normalize_models.py" "$DB_URL"
+
+echo ""
+echo "[6/6] Normalizing make names..."
+python3 "$SCRIPT_DIR/normalize_makes.py" "$DB_URL"
 
 echo ""
 echo "==> Done."

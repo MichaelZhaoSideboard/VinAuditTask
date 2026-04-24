@@ -28,19 +28,19 @@ async def list_makes(
 ) -> list[str]:
     rows = await db.fetch(
         """
-        SELECT make
+        SELECT make_normalized
         FROM listings
         WHERE year = $1
-          AND make IS NOT NULL
+          AND make_normalized IS NOT NULL
           AND listing_price IS NOT NULL
-        GROUP BY make
+        GROUP BY make_normalized
         HAVING COUNT(*) >= $2
-        ORDER BY make
+        ORDER BY make_normalized
         """,
         year,
         settings.min_make_listings,
     )
-    return [r["make"] for r in rows]
+    return [r["make_normalized"] for r in rows]
 
 
 @router.get("/models")
@@ -54,13 +54,17 @@ async def list_models(
         SELECT model_normalized
         FROM listings
         WHERE year = $1
-          AND make = $2
+          AND make_normalized = $2
           AND model_normalized IS NOT NULL
           AND listing_price IS NOT NULL
+          AND LENGTH(model_normalized) > 1
+          AND model_normalized NOT IN ('Other', 'All Models')
         GROUP BY model_normalized
+        HAVING COUNT(*) >= $3
         ORDER BY model_normalized
         """,
         year,
         make,
+        settings.min_model_listings,
     )
     return [r["model_normalized"] for r in rows]
