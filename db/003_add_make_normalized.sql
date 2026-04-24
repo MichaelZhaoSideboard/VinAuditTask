@@ -9,3 +9,7 @@ DROP INDEX IF EXISTS idx_listings_year_make_model_normalized;
 
 CREATE INDEX IF NOT EXISTS idx_listings_year_make_model_normalized
     ON listings (year, make_normalized, model_normalized);
+
+CREATE INDEX IF NOT EXISTS idx_listings_priced_year_make_model
+    ON listings (year, make_normalized, model_normalized)
+    WHERE listing_price IS NOT NULL;
