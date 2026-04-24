@@ -50,7 +50,7 @@ Before regression, mileage values of `0`, `null`, or `> 300,000` are treated as 
 
 ## Data Normalization
 
-Raw inventory data contains inconsistent make/model strings ("HONDA", "Honda", "Hond…", "Silverado 1500 LTZ", etc.). Two normalization scripts canonicalize the data before any queries are run.
+Raw inventory data contains inconsistent make/model strings ("HONDA", "Honda", "Hond…", "Silverado 1500 LTZ", etc.). Two normalization scripts canonicalize the data before any queries are run. We remove listings with locations in Canada due to currency difference and regional disparities. 
 
 ### Make normalization ([db/normalize_makes.py](db/normalize_makes.py))
 
@@ -135,3 +135,14 @@ bash start.sh         # backend on :8000, frontend on :5173
 The backend auto-reloads on code changes (uvicorn `--reload`). The frontend uses Vite HMR.
 
 API docs are available at `http://localhost:8000/docs`.
+
+## Limitations and Future Improvements
+
+**Limitations**:
+- The initial loading of the dataset into a database and applying the normalization processing can be slow. If the dataset was even larger it would make sense to create a parallel process job to allow for increased performance
+- The data normalization process is not perfect. There is a lot of possible scenarios where the scraped vehicle make/model is incorrect and just some maligned string that may contain some vehicle information. There are also certain models that have trims that are distinct that don't collapse well into the base model versus some others that are distinctly different models that are named close enough to another model that it accidentally gets collapsed. There likely needs to be a more robust and engineered way to process incorrect data.
+
+**Improvements**:
+- Can add an option to filter by trim of the model. This would likely require a large enough dataset that would allow for an accurate enough estimation for each trim
+- Given that the mileage is the biggest factor in determinting estimated price and not year of the car, a possible alternative way to search for estimated price is to allow users to filter by just make, model and mileage. Year does some impact on the average price of a vehicle so we would need to use a different formula for this type of search
+- Location is another factor that can impact the estimated value of a vehicle. This would also require a much larger dataset to accurately estimate the value of a given vehicle, but a location filter by state could be useful for someone actually in the market for a vehicle
