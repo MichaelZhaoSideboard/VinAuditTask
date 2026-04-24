@@ -68,7 +68,7 @@ psql "$DB_URL" -f "$SCRIPT_DIR/004_add_nhtsa_tables.sql"
 echo "[2/6] Creating staging table..."
 $PSQL <<'SQL'
 DROP TABLE IF EXISTS listings_raw;
-CREATE TEMP TABLE listings_raw (
+CREATE TABLE listings_raw (
     vin                       TEXT,
     year                      TEXT,
     make                      TEXT,
