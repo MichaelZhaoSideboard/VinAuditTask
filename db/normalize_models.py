@@ -25,6 +25,8 @@ Run after 004_add_nhtsa_tables.sql has been applied and listings populated.
 --no-fetch skips the NHTSA API calls and reuses the existing nhtsa_models table.
 """
 
+from __future__ import annotations
+
 import html
 import json
 import os
