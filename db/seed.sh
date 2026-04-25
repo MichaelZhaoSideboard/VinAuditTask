@@ -62,6 +62,7 @@ psql "$DB_URL" -f "$SCRIPT_DIR/001_initial_schema.sql"
 psql "$DB_URL" -f "$SCRIPT_DIR/002_add_model_normalized.sql"
 psql "$DB_URL" -f "$SCRIPT_DIR/003_add_make_normalized.sql"
 psql "$DB_URL" -f "$SCRIPT_DIR/004_add_nhtsa_tables.sql"
+psql "$DB_URL" -f "$SCRIPT_DIR/005_add_nhtsa_make_types.sql"
 
 # --- Load into staging table (all TEXT to avoid type errors from dirty data) ---
 

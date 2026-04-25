@@ -29,10 +29,14 @@ async def list_makes(
     rows = await db.fetch(
         """
         SELECT make_normalized
-        FROM listings
+        FROM listings l
         WHERE year = $1
           AND make_normalized IS NOT NULL
           AND listing_price IS NOT NULL
+          AND (
+              NOT EXISTS (SELECT 1 FROM nhtsa_make_types WHERE make = l.make_normalized)
+              OR (SELECT has_passenger_vehicles FROM nhtsa_make_types WHERE make = l.make_normalized)
+          )
         GROUP BY make_normalized
         HAVING COUNT(*) >= $2
         ORDER BY make_normalized
