@@ -28,18 +28,16 @@ async def list_makes(
 ) -> list[str]:
     rows = await db.fetch(
         """
-        SELECT make_normalized
+        SELECT l.make_normalized
         FROM listings l
-        WHERE year = $1
-          AND make_normalized IS NOT NULL
-          AND listing_price IS NOT NULL
-          AND (
-              NOT EXISTS (SELECT 1 FROM nhtsa_make_types WHERE make = l.make_normalized)
-              OR (SELECT has_passenger_vehicles FROM nhtsa_make_types WHERE make = l.make_normalized)
-          )
-        GROUP BY make_normalized
+        LEFT JOIN nhtsa_make_types t ON t.make = l.make_normalized
+        WHERE l.year = $1
+          AND l.make_normalized IS NOT NULL
+          AND l.listing_price IS NOT NULL
+          AND (t.make IS NULL OR t.has_passenger_vehicles)
+        GROUP BY l.make_normalized
         HAVING COUNT(*) >= $2
-        ORDER BY make_normalized
+        ORDER BY l.make_normalized
         """,
         year,
         settings.min_make_listings,
