@@ -26,6 +26,7 @@ import time
 import urllib.parse
 import urllib.request
 from collections import defaultdict
+from typing import Optional
 
 import psycopg2
 import psycopg2.extras
@@ -113,7 +114,7 @@ def normalize_make_names(conn) -> int:
     return updated
 
 
-def _fetch_nhtsa_vehicle_types(make: str) -> bool | None:
+def _fetch_nhtsa_vehicle_types(make: str) -> Optional[bool]:
     """
     Returns True if NHTSA says this make produces passenger vehicles,
     False if NHTSA has data but none of it is passenger-type, or
