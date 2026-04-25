@@ -50,7 +50,7 @@ Before regression, mileage values of `0`, `null`, or `> 300,000` are treated as 
 
 ## Data Normalization
 
-Raw inventory data contains inconsistent make/model strings ("HONDA", "Honda", "Hond…", "Silverado 1500 LTZ", etc.). Two normalization scripts canonicalize the data before any queries are run. We remove listings with locations in Canada due to currency difference and regional disparities. 
+Raw inventory data contains inconsistent make/model strings ("HONDA", "Honda", "Hond…", "Silverado 1500 LTZ", etc.). Two normalization scripts canonicalize the data before any queries are run. We remove listings with locations in Canada due to currency difference and regional disparities. We also remove non-passenger cars such as trailers and RVs.
 
 ### Make normalization ([db/normalize_makes.py](db/normalize_makes.py))
 
