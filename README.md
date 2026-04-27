@@ -145,4 +145,5 @@ API docs are available at `http://localhost:8000/docs`.
 **Improvements**:
 - Can add an option to filter by trim of the model. This would likely require a large enough dataset that would allow for an accurate enough estimation for each trim
 - Given that the mileage is the biggest factor in determinting estimated price and not year of the car, a possible alternative way to search for estimated price is to allow users to filter by just make, model and mileage. Year does some impact on the average price of a vehicle so we would need to use a different formula for this type of search
+- Another possible improvement is allowing the sorting of the sample listings by mileage or price.
 - Location is another factor that can impact the estimated value of a vehicle. This would also require a much larger dataset to accurately estimate the value of a given vehicle, but a location filter by state could be useful for someone actually in the market for a vehicle
